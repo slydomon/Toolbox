@@ -55,7 +55,7 @@ Code:
   
   struct my_class_test: public testing::Test
   {
-    my_class m();
+    my_class* m();
     //The following two functions will be called in every TEST_F function.
     void SetUp() { //implement the arrange process;} //called at the beginning of TEST_F
     void TearDown() {//implement the things that should be done after unit test;} //called at the end of TEST_F

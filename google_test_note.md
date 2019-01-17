@@ -3,11 +3,15 @@
 ## 1.Initialize a Test
 
 ```
+#include<gtest/gtest.h>
+
 int main(int argc, char* argv[])
 {
   testing::InitGoogleTest(&argc, argv) ;
   return RUN_ALL_TESTS() ;
 }
+
+Remember to add "-lgtest", "-lgtest_main", "-pthread" when compiling.
 ```
 
 ## 2.Create a Test
@@ -69,5 +73,77 @@ Code:
     //assert
     ASSERT_XX()/EXPECT_XX() ;
     //automatically call TearDown()
+  }
+```
+
+## 5.Mock
+```
+Purpose: 
+  Mock the behavior of an API or a certain dependency that is called by the tested component.
+  For example, A() calls B() within A(). By mocking B(), we can rule out the dependency while
+  conducting the unit test for A().
+  
+  Remember to add "-lgmock" when compiling.
+  
+Code:
+  #include<gmock/gmock.h>
+  
+  using ::testing::AtLeast;
+  using ::testing::Return;
+  using ::testing::_;
+  
+  class db_connect
+  {
+    virtual bool login(string username, string password){return true;}
+    virtual bool logout(string username){return true;}
+    virtual int fetch_record(){return -1;}
+  };
+  
+  class my_db
+  {
+    db_connect & dbc ;
+  public:
+    my_db(db_connect & dbc): dbc(dbc){}
+    int init(string username, string password)
+    {
+      if(dbc.login(string username, string password))
+      {
+        cout << "db failure" << endl;
+        return -1 ;
+      }
+      else
+      {
+        cout << "db success" << endl;
+        return 1 ;
+      }
+    }
+  };
+  
+  //mocking code
+  class mock_db : public db_connect
+  {
+    MOCK_METHOD0(fetch_record, int ()) ; //since fetch_record takes 0 parameter, using METHOD0.
+    MOCK_METHOD1(logout, bool (string username)) ; //since logout takes 1 parameter, using METHOD1.
+    MOCK_METHOD2(login, bool (string username, string password)) ; //etc...
+  }
+  
+  TEST(my_db_test, login_test)
+  {
+    //arragne
+    mock_db mdb ;
+    my_db(mdb) ;
+    
+    //define behavior for mock function.
+    EXPECT_CALL(mdb, login("Terminator", "I am back")) //define called function and input. Can use wildcard, "_" to all input.
+
+    .Times(1)  //execute 1 time.
+    .WillOnce(Return(true)) ; //define return value
+    
+    //act
+    //will pass the "Terminator to login and login will return true as we specifited above.
+    int ret_val = db.init("Terminator", "I am back") ; 
+    
+    //assert
+    EXPECT_EQ(ret_val, 1) ;
   }
 ```

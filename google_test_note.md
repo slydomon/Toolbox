@@ -135,10 +135,9 @@ Code:
     
     //define behavior for mock function.
     EXPECT_CALL(mdb, login("Terminator", "I am back")) //define called function and input. Can use wildcard, "_" to all input.
-
-    .Times(1)  //execute 1 time.
-    .WillOnce(Return(true)) ; //define return value
-    
+    .Times(1)  //execute only 1 exact time in the tested function; we can use AtLeast(1) here.
+    .WillOnce(Return(true)) ; //define return value 
+       
     //act
     //will pass the "Terminator to login and login will return true as we specifited above.
     int ret_val = db.init("Terminator", "I am back") ; 
@@ -146,4 +145,22 @@ Code:
     //assert
     EXPECT_EQ(ret_val, 1) ;
   }
+  
 ```
+
+  ## 6.Other Detail
+  
+1.ON_CALL() :
+  ```
+  If the mocking is going to be called but we do not know how many times it will be called, 
+  we can use "ON_CALL(mdb, log(...)) ; In this case, the code would be: 
+  ON_CALL(mdb, login("Terminator", "I am back").willByDefault(Return(true)) ;
+  ```
+  
+2.Invoke(&caller, &function_name)/InvokeWithoutArgs(&func_name)
+  ```
+  Invoke can be used as the parameter of .WillOnce(Invoke), 
+  so that .WillOnce can apply Invoke's return value as input
+  ```
+  
+  

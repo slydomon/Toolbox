@@ -163,4 +163,10 @@ Code:
   so that .WillOnce can apply Invoke's return value as input
   ```
   
+3.DoAll(&func1, &func2, ..., Return(value)/Invoke)
+  ```
+  DoAll is used as the input of .WillOnce(DoAll(fun1, fun2, ..., Return/Invoke)).
+  DoAll will call all the input function and use value of last parameter as the retrun.
+  ```
+  
   
